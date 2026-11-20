@@ -1,0 +1,41 @@
+{
+  "kicker": "About Me",
+  "title": "Turning Ideas into",
+  "titleBreak": "Real-World Solutions",
+  "description": "I’m a passionate Full Stack Developer who enjoys turning practical requirements into reliable, maintainable software products. I work across the stack — designing database schemas, writing backend services in PHP and Node.js, building clean frontend interfaces, and configuring Linux VPS environments for production.",
+  "meta": {
+    "location": "India",
+    "email": "satyam@example.com",
+    "availability": "Available for work"
+  },
+  "ctaButton": {
+    "label": "Know More About Me",
+    "href": "#contact"
+  },
+  "traits": [
+    {
+      "id": "fast-learner",
+      "icon": "zap",
+      "title": "Fast Learner",
+      "description": "Quickly adapt to new frameworks, libraries and project architectures."
+    },
+    {
+      "id": "clean-code",
+      "icon": "code",
+      "title": "Clean Code",
+      "description": "Write readable, maintainable and well-structured code that scales."
+    },
+    {
+      "id": "team-player",
+      "icon": "users",
+      "title": "Team Player",
+      "description": "Love working in a team environment with agile flow."
+    },
+    {
+      "id": "problem-solver",
+      "icon": "rocket",
+      "title": "Problem Solver",
+      "description": "Find robust solutions, not just quick temporary fixes."
+    }
+  ]
+}

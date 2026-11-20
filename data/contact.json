@@ -1,0 +1,62 @@
+{
+  "kicker": "Get In Touch",
+  "title": "Let’s build",
+  "titleBreak": "something useful.",
+  "description": "Have a project in mind, need help with an existing product, or want to discuss an idea? Send a message and tell me a little about it.",
+  "details": [
+    {
+      "id": "email",
+      "icon": "mail",
+      "label": "Email",
+      "value": "satyam@example.com",
+      "note": "Direct message",
+      "href": "mailto:satyam@example.com"
+    },
+    {
+      "id": "location",
+      "icon": "map-pin",
+      "label": "Location",
+      "value": "India",
+      "note": "Remote & On-site",
+      "href": null
+    },
+    {
+      "id": "status",
+      "icon": "clock",
+      "label": "Status",
+      "value": "Available for work",
+      "note": "Full-time & contract",
+      "href": null
+    },
+    {
+      "id": "github",
+      "icon": "github",
+      "label": "GitHub",
+      "value": "github.com",
+      "note": "Code & experiments",
+      "href": "https://github.com"
+    }
+  ],
+  "form": {
+    "headerTitle": "Send a direct message",
+    "headerNote": "Typically replies within 24 hours",
+    "projectTypes": [
+      "Select a topic",
+      "New web application",
+      "Backend / API development",
+      "Frontend development",
+      "Server / deployment support",
+      "Other"
+    ],
+    "budgets": [
+      "Not decided",
+      "Under ₹25,000",
+      "₹25,000 – ₹50,000",
+      "₹50,000 – ₹1,00,000",
+      "₹1,00,000+",
+      "Prefer to discuss"
+    ],
+    "note": "This form sends your message directly and securely.",
+    "submitLabel": "Send Message"
+  }
+}

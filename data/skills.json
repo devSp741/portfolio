@@ -1,0 +1,104 @@
+{
+  "kicker": "My Skills & Stack",
+  "title": "Full Stack Technologies",
+  "description": "A practical toolkit for building complete web products — from database design and application logic to polished interfaces and production servers.",
+  "note": "Tools used in real projects",
+  "coreStack": {
+    "toplineIndex": "01 / Core stack",
+    "toplineBadge": "Backend first",
+    "title": "Building the foundation",
+    "intro": "The technologies I use to structure data, build application logic and connect reliable services.",
+    "items": [
+      {
+        "icon": "php",
+        "name": "PHP",
+        "detail": "Server-side application development & logic",
+        "type": "Backend"
+      },
+      {
+        "icon": "laravel",
+        "name": "Laravel",
+        "detail": "APIs, business logic and application structure",
+        "type": "Framework"
+      },
+      {
+        "icon": "codeigniter",
+        "name": "CodeIgniter",
+        "detail": "Lightweight MVC architectures & speed",
+        "type": "Framework"
+      },
+      {
+        "icon": "node",
+        "name": "Node.js",
+        "detail": "Services, integrations and API development",
+        "type": "Runtime"
+      },
+      {
+        "icon": "mysql",
+        "name": "MySQL",
+        "detail": "Relational data modelling, indexes & queries",
+        "type": "Database"
+      }
+    ]
+  },
+  "stackGroups": [
+    {
+      "id": "frontend",
+      "icon": "code",
+      "title": "Frontend Development",
+      "description": "Responsive interfaces with reusable components and clear interaction patterns.",
+      "skills": [
+        { "name": "React.js", "icon": "react" },
+        { "name": "Next.js", "icon": "nextjs" },
+        { "name": "JavaScript", "icon": "javascript" },
+        { "name": "jQuery", "icon": "jquery" },
+        { "name": "Tailwind CSS", "icon": "tailwind" },
+        { "name": "Bootstrap", "icon": "bootstrap" },
+        { "name": "HTML5", "icon": "html5" },
+        { "name": "CSS3", "icon": "css3" }
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "icon": "server",
+      "title": "Infrastructure",
+      "description": "Deploying and maintaining applications on Linux-based environments.",
+      "skills": [
+        { "name": "Linux", "icon": "linux" },
+        { "name": "Ubuntu VPS", "icon": "server" },
+        { "name": "Apache", "icon": "apache" },
+        { "name": "Nginx", "icon": "nginx" },
+        { "name": "cPanel", "icon": "cpanel" },
+        { "name": "DNS & SSL", "icon": "globe" }
+      ]
+    },
+    {
+      "id": "apis",
+      "icon": "terminal",
+      "title": "APIs & Integrations",
+      "description": "Connecting applications, services and third-party platforms cleanly.",
+      "skills": [
+        { "name": "REST APIs", "icon": "terminal" },
+        { "name": "JSON", "icon": "code" },
+        { "name": "Postman", "icon": "postman" },
+        { "name": "Webhooks", "icon": "zap" },
+        { "name": "Authentication", "icon": "check" }
+      ]
+    },
+    {
+      "id": "workflow",
+      "icon": "git",
+      "title": "Developer Workflow",
+      "description": "Version control and practical tools for a consistent delivery process.",
+      "skills": [
+        { "name": "Git", "icon": "git" },
+        { "name": "GitHub", "icon": "github" },
+        { "name": "VS Code", "icon": "vscode" },
+        { "name": "CLI / Bash", "icon": "terminal" },
+        { "name": "CI/CD", "icon": "rocket" },
+        { "name": "Code review", "icon": "check-circle" }
+      ]
+    }
+  ],
+  "footnote": "Focused on tools that solve real product and deployment problems."
+}

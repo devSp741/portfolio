@@ -1,0 +1,28 @@
+{
+  "eyebrow": "Hello, I'm",
+  "statusDot": true,
+  "nameFirst": "Satyam",
+  "nameAccent": "Prajapati",
+  "role": "Full Stack Developer",
+  "description": "I build modern web applications with a focus on performance, clean code and great user experience across the entire stack (Backend, Frontend & Linux Servers).",
+  "primaryCta": {
+    "label": "View My Skills",
+    "href": "#skills"
+  },
+  "secondaryCta": {
+    "label": "Download Resume",
+    "href": "#contact"
+  },
+  "heroTechs": [
+    { "name": "Next.js", "icon": "nextjs" },
+    { "name": "React", "icon": "react" },
+    { "name": "Node.js", "icon": "node" },
+    { "name": "Laravel", "icon": "laravel" },
+    { "name": "PHP", "icon": "php" },
+    { "name": "MySQL", "icon": "mysql" },
+    { "name": "Ubuntu VPS", "icon": "linux" },
+    { "name": "Git", "icon": "git" },
+    { "name": "Tailwind CSS", "icon": "tailwind" }
+  ],
+  "portraitAlt": "Satyam Prajapati - Full Stack Developer"
+}

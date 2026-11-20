@@ -1,0 +1,31 @@
+{
+  "kicker": "What I Bring",
+  "title": "Engineering Beyond the Code",
+  "description": "I look at the full lifecycle of a product — not just the screen or the endpoint, but how every part works together.",
+  "items": [
+    {
+      "num": "01",
+      "index": "01 / BACKEND",
+      "icon": "database",
+      "title": "Backend Engineering",
+      "description": "Well-structured APIs, database schemas, authentication and business logic designed to stay maintainable as products grow.",
+      "tagline": "Data · Logic · APIs"
+    },
+    {
+      "num": "02",
+      "index": "02 / FRONTEND",
+      "icon": "frontend",
+      "title": "Frontend Development",
+      "description": "Responsive, accessible interfaces built with reusable components, thoughtful spacing and predictable user interactions.",
+      "tagline": "Components · UX · Responsive UI"
+    },
+    {
+      "num": "03",
+      "index": "03 / DELIVERY",
+      "icon": "devops",
+      "title": "DevOps & Infrastructure",
+      "description": "Linux VPS setup, web server configuration, domains, SSL and practical deployment workflows for production apps.",
+      "tagline": "Linux · Hosting · Deployment"
+    }
+  ]
+}
