@@ -25,25 +25,12 @@ jobs:
       - name: Run Supabase Migrations
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          PROJECT_ID: 'hkwcewasziqpakxcahou'
         run: |
-          echo "Starting Supabase migration deployment..."
-          if [ -n "$SUPABASE_DB_URL" ]; then
-            echo "Using SUPABASE_DB_URL direct connection..."
-            supabase db push --db-url "$SUPABASE_DB_URL" --include-all
-          elif [ -n "$SUPABASE_DB_PASSWORD" ] && [ -n "$SUPABASE_ACCESS_TOKEN" ]; then
-            echo "Using Supabase project link and access token..."
-            supabase link --project-ref "$PROJECT_ID" --password "$SUPABASE_DB_PASSWORD"
-            supabase db push --password "$SUPABASE_DB_PASSWORD" --include-all
-          elif [ -n "$SUPABASE_DB_PASSWORD" ]; then
-            echo "Building connection string from SUPABASE_DB_PASSWORD..."
-            DB_CONNECTION="postgresql://postgres:${SUPABASE_DB_PASSWORD}@db.${PROJECT_ID}.supabase.co:5432/postgres"
-            supabase db push --db-url "$DB_CONNECTION" --include-all
-          else
-            echo "::error::No database credentials provided! Please add SUPABASE_DB_PASSWORD or SUPABASE_DB_URL to GitHub Secrets."
+          echo "Starting Supabase migration deployment via Session Pooler..."
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL secret is missing in GitHub Repository Secrets!"
+            echo "Please add SUPABASE_DB_URL (Session Pooler URI with password) to Settings -> Secrets and variables -> Actions."
             exit 1
           fi
+          supabase db push --remote "$SUPABASE_DB_URL" --include-all || supabase db push --db-url "$SUPABASE_DB_URL" --include-all
           echo "Migration completed successfully!"
-
