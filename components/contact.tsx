@@ -3,9 +3,11 @@
 import { useState } from "react";
 import contactData from "../data/contact.json";
 import { ArrowRight, GitHubIcon, Mail, MapPin, Sparkles } from "./icons";
+import { useToast } from "./toast";
 
 export function Contact() {
   const { kicker, title, titleBreak, description, details, form } = contactData;
+  const toast = useToast();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -16,7 +18,6 @@ export function Contact() {
     honeypot: "",
   });
 
-  const [status, setStatus] = useState<{ message: string; isError: boolean } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const renderDetailIcon = (iconName: string) => {
@@ -42,12 +43,11 @@ export function Contact() {
     }
 
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      setStatus({ message: "Please fill in all required fields.", isError: true });
+      toast.error("Required fields missing", "Please fill in your name, email and message.");
       return;
     }
 
     setIsSubmitting(true);
-    setStatus(null);
 
     try {
       const response = await fetch("/api/contact", {
@@ -64,10 +64,10 @@ export function Contact() {
         throw new Error(data.error || "Failed to send message.");
       }
 
-      setStatus({
-        message: data.message || "Thank you! Your message has been received.",
-        isError: false,
-      });
+      toast.success(
+        "Message Sent Successfully!",
+        "Thank you! Your message has been received. I will get back to you soon."
+      );
 
       setFormData({
         name: "",
@@ -82,7 +82,7 @@ export function Contact() {
         err instanceof Error
           ? err.message
           : "Unable to process message right now. Please email directly.";
-      setStatus({ message: errMessage, isError: true });
+      toast.error("Failed to send", errMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -250,18 +250,6 @@ export function Contact() {
                 <ArrowRight size={14} aria-hidden="true" />
               </button>
             </div>
-
-            {status && (
-              <p
-                className="form-status"
-                style={{ color: status.isError ? "#ff7a70" : "#9acb55" }}
-                role="status"
-                aria-live="polite"
-              >
-                {status.isError ? "✕ " : "✓ "}
-                {status.message}
-              </p>
-            )}
           </form>
         </div>
       </div>

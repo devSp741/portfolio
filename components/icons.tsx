@@ -1,5 +1,6 @@
 import React from "react";
 export {
+  AlertCircle,
   ArrowDown,
   ArrowLeft,
   ArrowRight,

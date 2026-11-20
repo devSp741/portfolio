@@ -1,0 +1,49 @@
+name: Supabase Database Migration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/supabase-migration.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-migrations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Run Supabase Migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_ID: 'hkwcewasziqpakxcahou'
+        run: |
+          echo "Starting Supabase migration deployment..."
+          if [ -n "$SUPABASE_DB_URL" ]; then
+            echo "Using SUPABASE_DB_URL direct connection..."
+            supabase db push --db-url "$SUPABASE_DB_URL" --include-all
+          elif [ -n "$SUPABASE_DB_PASSWORD" ] && [ -n "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "Using Supabase project link and access token..."
+            supabase link --project-ref "$PROJECT_ID" --password "$SUPABASE_DB_PASSWORD"
+            supabase db push --password "$SUPABASE_DB_PASSWORD" --include-all
+          elif [ -n "$SUPABASE_DB_PASSWORD" ]; then
+            echo "Building connection string from SUPABASE_DB_PASSWORD..."
+            DB_CONNECTION="postgresql://postgres:${SUPABASE_DB_PASSWORD}@db.${PROJECT_ID}.supabase.co:5432/postgres"
+            supabase db push --db-url "$DB_CONNECTION" --include-all
+          else
+            echo "::error::No database credentials provided! Please add SUPABASE_DB_PASSWORD or SUPABASE_DB_URL to GitHub Secrets."
+            exit 1
+          fi
+          echo "Migration completed successfully!"
+

@@ -3,9 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { ContactMessage } from "../../lib/messages";
+import { useAdminAuth } from "../../context/admin-auth-context";
+import { useToast } from "../../components/toast";
 import {
   ArrowLeft,
   CheckCircle2,
+  Copy,
   Inbox,
   Lock,
   LogOut,
@@ -15,57 +18,61 @@ import {
 } from "../../components/icons";
 
 export default function AdminPage() {
-  const [passcode, setPasscode] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, login, logout, getAuthHeaders } = useAdminAuth();
+  const toast = useToast();
 
+  const [inputPasscode, setInputPasscode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
   const [showSqlGuide, setShowSqlGuide] = useState(false);
 
-  const fetchMessages = useCallback(async (token: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/messages", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const fetchMessages = useCallback(
+    async (showNotification = false) => {
+      setIsLoading(true);
+      try {
+        const res = await fetch("/api/admin/messages", {
+          headers: getAuthHeaders(),
+        });
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          setIsAuthenticated(false);
-          sessionStorage.removeItem("satyam_admin_passcode");
-          throw new Error("Invalid passcode. Please try again.");
+        if (!res.ok) {
+          if (res.status === 401) {
+            logout();
+            toast.error("Session Expired", "Please enter your passcode again.");
+            return;
+          }
+          throw new Error("Failed to load messages from server.");
         }
-        throw new Error("Failed to load messages from server.");
+
+        const data = await res.json();
+        setMessages(data.messages || []);
+        setIsSupabaseConnected(Boolean(data.isSupabaseConnected));
+        if (showNotification) {
+          toast.info("Inbox Refreshed", `Loaded ${data.messages?.length || 0} messages.`);
+        }
+      } catch (err) {
+        toast.error("Fetch Error", err instanceof Error ? err.message : "Network error.");
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [getAuthHeaders, logout, toast]
+  );
 
-      const data = await res.json();
-      setMessages(data.messages || []);
-      setIsSupabaseConnected(Boolean(data.isSupabaseConnected));
-      setIsAuthenticated(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
+  // Auto-fetch messages whenever authenticated
   useEffect(() => {
     let isMounted = true;
-    const saved = sessionStorage.getItem("satyam_admin_passcode");
-    if (!saved) return;
+    if (!isAuthenticated) return;
 
     fetch("/api/admin/messages", {
-      headers: {
-        Authorization: `Bearer ${saved}`,
-      },
+      headers: getAuthHeaders(),
     })
       .then((res) => {
         if (!res.ok) {
+          if (res.status === 401) {
+            logout();
+          }
           throw new Error("Unauthorized");
         }
         return res.json();
@@ -74,42 +81,46 @@ export default function AdminPage() {
         if (isMounted) {
           setMessages(data.messages || []);
           setIsSupabaseConnected(Boolean(data.isSupabaseConnected));
-          setIsAuthenticated(true);
         }
       })
       .catch(() => {
-        if (isMounted) {
-          sessionStorage.removeItem("satyam_admin_passcode");
-        }
+        // silent initial fetch fallback
       });
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isAuthenticated, getAuthHeaders, logout]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!passcode.trim()) return;
-    sessionStorage.setItem("satyam_admin_passcode", passcode.trim());
-    fetchMessages(passcode.trim());
+    if (!inputPasscode.trim()) return;
+
+    setIsSubmitting(true);
+    const result = await login(inputPasscode);
+    setIsSubmitting(false);
+
+    if (result.success) {
+      toast.success("Welcome Satyam!", "Admin dashboard unlocked.");
+      setInputPasscode("");
+    } else {
+      toast.error("Authentication Failed", result.error || "Invalid passcode.");
+    }
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("satyam_admin_passcode");
-    setIsAuthenticated(false);
-    setPasscode("");
+    logout();
     setMessages([]);
+    toast.info("Logged Out", "You have been logged out securely.");
   };
 
   const handleMarkRead = async (id: string) => {
-    const token = sessionStorage.getItem("satyam_admin_passcode") || passcode;
     try {
       const res = await fetch("/api/admin/messages", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ id }),
       });
@@ -117,28 +128,32 @@ export default function AdminPage() {
         setMessages((prev) =>
           prev.map((m) => (m.id === id ? { ...m, is_read: true } : m))
         );
+        toast.success("Marked as Read", "Message status updated.");
       }
-    } catch (err) {
-      console.error("Mark read error:", err);
+    } catch {
+      toast.error("Update Failed", "Could not update message status.");
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this message?")) return;
-    const token = sessionStorage.getItem("satyam_admin_passcode") || passcode;
     try {
       const res = await fetch(`/api/admin/messages?id=${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
       });
       if (res.ok) {
         setMessages((prev) => prev.filter((m) => m.id !== id));
+        toast.info("Message Deleted", "The message has been removed.");
       }
-    } catch (err) {
-      console.error("Delete error:", err);
+    } catch {
+      toast.error("Delete Failed", "Could not delete message.");
     }
+  };
+
+  const handleCopyEmail = (email: string) => {
+    navigator.clipboard.writeText(email);
+    toast.success("Email Copied", email);
   };
 
   const unreadCount = messages.filter((m) => !m.is_read).length;
@@ -166,7 +181,7 @@ export default function AdminPage() {
               <>
                 <button
                   type="button"
-                  onClick={() => fetchMessages(passcode)}
+                  onClick={() => fetchMessages(true)}
                   disabled={isLoading}
                   style={{ background: "rgba(16, 23, 34, 0.8)", color: "#edf1f6", border: "1px solid rgba(155, 171, 193, 0.2)", borderRadius: "6px", padding: "6px 14px", fontSize: "12px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "6px" }}
                 >
@@ -186,7 +201,7 @@ export default function AdminPage() {
           </div>
         </header>
 
-        {/* Login Card */}
+        {/* Login Card (if not logged in) */}
         {!isAuthenticated ? (
           <div style={{ maxWidth: "420px", margin: "80px auto", padding: "32px", background: "linear-gradient(145deg, rgba(17, 24, 36, 0.96), rgba(12, 18, 28, 0.94))", border: "1px solid rgba(155, 171, 193, 0.16)", borderRadius: "14px", boxShadow: "0 20px 40px rgba(0,0,0,0.4)" }}>
             <div style={{ textAlign: "center", marginBottom: "24px" }}>
@@ -197,7 +212,7 @@ export default function AdminPage() {
               <p style={{ margin: 0, color: "#9daabd", fontSize: "12px" }}>Enter your admin secret key to view received contact messages.</p>
             </div>
 
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleLoginSubmit}>
               <div style={{ marginBottom: "18px" }}>
                 <label htmlFor="passcode" style={{ display: "block", fontSize: "11px", fontWeight: "650", color: "#c4cedb", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                   Passcode / Admin Key
@@ -205,32 +220,22 @@ export default function AdminPage() {
                 <input
                   id="passcode"
                   type="password"
-                  placeholder="e.g. satyam2026"
-                  value={passcode}
-                  onChange={(e) => setPasscode(e.target.value)}
+                  placeholder="SATYAM"
+                  value={inputPasscode}
+                  onChange={(e) => setInputPasscode(e.target.value)}
                   style={{ width: "100%", padding: "10px 14px", fontSize: "14px", background: "rgba(7, 12, 20, 0.7)", border: "1px solid rgba(155, 171, 193, 0.2)", borderRadius: "8px", color: "#edf1f6", outline: "none", boxSizing: "border-box" }}
                   required
                 />
               </div>
 
-              {error && (
-                <div style={{ padding: "10px 12px", marginBottom: "16px", borderRadius: "6px", background: "rgba(255, 103, 93, 0.12)", border: "1px solid rgba(255, 103, 93, 0.3)", color: "#ff7a70", fontSize: "12px" }}>
-                  ✕ {error}
-                </div>
-              )}
-
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSubmitting}
                 style={{ width: "100%", padding: "11px", background: "#ff675d", color: "#fff", border: "none", borderRadius: "8px", fontSize: "13px", fontWeight: "650", cursor: "pointer", transition: "opacity .2s" }}
               >
-                {isLoading ? "Verifying..." : "Unlock Messages"}
+                {isSubmitting ? "Unlocking..." : "Unlock Messages"}
               </button>
             </form>
-
-            <div style={{ marginTop: "20px", padding: "10px", background: "rgba(255,255,255,0.02)", borderRadius: "6px", fontSize: "11px", color: "#8a97ab", textAlign: "center" }}>
-              Default key: <code style={{ color: "#ff675d" }}>satyam2026</code> (Configurable via <code>ADMIN_SECRET</code> in .env)
-            </div>
           </div>
         ) : (
           /* Dashboard Content */
@@ -254,7 +259,7 @@ export default function AdminPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: "7px", marginTop: "8px" }}>
                   <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: isSupabaseConnected ? "#52c41a" : "#faad14" }} />
                   <span style={{ fontSize: "13px", fontWeight: "650", color: isSupabaseConnected ? "#9acb55" : "#e6a23c" }}>
-                    {isSupabaseConnected ? "Supabase (Cloud DB)" : "In-Memory (Demo Mode)"}
+                    {isSupabaseConnected ? "Supabase (Cloud DB Live)" : "In-Memory (Demo Mode)"}
                   </span>
                 </div>
               </div>
@@ -265,9 +270,9 @@ export default function AdminPage() {
               <div style={{ marginBottom: "24px", padding: "16px 20px", background: "rgba(250, 173, 20, 0.08)", border: "1px solid rgba(250, 173, 20, 0.28)", borderRadius: "10px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
                   <div>
-                    <strong style={{ color: "#faad14", fontSize: "13px" }}>⚡ Free Supabase Database Setup</strong>
+                    <strong style={{ color: "#faad14", fontSize: "13px" }}>⚡ Supabase Database Connection</strong>
                     <p style={{ margin: "4px 0 0", fontSize: "11px", color: "#c4cedb" }}>
-                      Vercel deployment ke baad permanent storage ke liye Supabase free database connect karein.
+                      Permanent cloud storage ke liye Vercel environment variables me Supabase keys set karein.
                     </p>
                   </div>
                   <button
@@ -281,9 +286,9 @@ export default function AdminPage() {
 
                 {showSqlGuide && (
                   <div style={{ marginTop: "14px", paddingTop: "14px", borderTop: "1px solid rgba(250, 173, 20, 0.2)", fontSize: "12px" }}>
-                    <p style={{ margin: "0 0 8px", color: "#edf1f6", fontWeight: "600" }}>1. Supabase.com par free project banayein aur SQL Editor me ye run karein:</p>
+                    <p style={{ margin: "0 0 8px", color: "#edf1f6", fontWeight: "600" }}>Supabase.com SQL Editor me run karein:</p>
                     <pre style={{ padding: "12px", background: "rgba(0,0,0,0.5)", borderRadius: "6px", overflowX: "auto", color: "#61dafb", fontSize: "11px", lineHeight: "1.4" }}>
-{`create table if not exists contact_messages (
+                      {`create table if not exists contact_messages (
   id uuid default gen_random_uuid() primary key,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   name text not null,
@@ -294,12 +299,6 @@ export default function AdminPage() {
   is_read boolean default false
 );`}
                     </pre>
-                    <p style={{ margin: "12px 0 6px", color: "#edf1f6", fontWeight: "600" }}>2. Vercel dashboard Settings → Environment Variables me add karein:</p>
-                    <ul style={{ margin: 0, paddingLeft: "18px", color: "#a5b4c7", fontSize: "11px", lineHeight: "1.6" }}>
-                      <li><code>SUPABASE_URL</code> = Project URL (e.g. <code>https://xyz.supabase.co</code>)</li>
-                      <li><code>SUPABASE_SERVICE_ROLE_KEY</code> = Secret service role key (Project Settings → API)</li>
-                      <li><code>ADMIN_SECRET</code> = Aapka custom password (e.g. <code>satyam@2026</code>)</li>
-                    </ul>
                   </div>
                 )}
               </div>
@@ -350,11 +349,19 @@ export default function AdminPage() {
                               </span>
                             )}
                           </div>
-                          <div style={{ marginTop: "4px", fontSize: "12px", color: "#8a97ab" }}>
-                            Email:{" "}
+                          <div style={{ marginTop: "4px", fontSize: "12px", color: "#8a97ab", display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span>Email:</span>
                             <a href={`mailto:${item.email}?subject=Re: Your portfolio inquiry`} style={{ color: "#38bdf8", textDecoration: "none" }}>
                               {item.email}
                             </a>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyEmail(item.email)}
+                              style={{ background: "none", border: "none", color: "#8a97ab", cursor: "pointer", padding: "0 4px", display: "inline-flex", alignItems: "center" }}
+                              title="Copy email address"
+                            >
+                              <Copy size={12} />
+                            </button>
                           </div>
                         </div>
 

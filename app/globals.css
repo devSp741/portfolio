@@ -1493,6 +1493,25 @@ section {
   }
 }
 
+@keyframes toast-slide-up {
+  0% {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.toast-item {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.toast-item:hover {
+  transform: translateY(-2px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
