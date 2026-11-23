@@ -85,29 +85,31 @@ export function Hero() {
               <span>{secondaryCta.label}</span>
             </a>
           </div>
-
-          {/* Smooth Right-to-Left Infinite Tech Marquee */}
-          <div className="hero-tech-ticker" aria-label="Core technologies">
-            <div className="hero-tech-track">
-              {loopTechs.map((tech, idx) => (
-                <span key={`${tech.name}-${idx}`} className="hero-tech-pill">
-                  <span className="hero-tech-icon" aria-hidden="true">
-                    {renderTechIcon(tech.icon)}
-                  </span>
-                  <span>{tech.name}</span>
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
 
-        <Image
-          className="hero-portrait"
-          src={portrait}
-          alt={portraitAlt}
-          priority
-          sizes="(max-width: 680px) 285px, (max-width: 1200px) 292px, 310px"
-        />
+        <div className="hero-portrait-wrap">
+          <Image
+            className="hero-portrait"
+            src={portrait}
+            alt={portraitAlt}
+            priority
+            sizes="(max-width: 680px) 280px, (max-width: 1200px) 292px, 310px"
+          />
+        </div>
+
+        {/* Smooth Right-to-Left Infinite Tech Marquee */}
+        <div className="hero-tech-ticker" aria-label="Core technologies">
+          <div className="hero-tech-track">
+            {loopTechs.map((tech, idx) => (
+              <span key={`${tech.name}-${idx}`} className="hero-tech-pill">
+                <span className="hero-tech-icon" aria-hidden="true">
+                  {renderTechIcon(tech.icon)}
+                </span>
+                <span>{tech.name}</span>
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

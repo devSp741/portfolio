@@ -26,11 +26,11 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
-          echo "Starting Supabase migration deployment via Session Pooler..."
+          echo "Starting Supabase migration deployment..."
           if [ -z "$SUPABASE_DB_URL" ]; then
             echo "::error::SUPABASE_DB_URL secret is missing in GitHub Repository Secrets!"
-            echo "Please add SUPABASE_DB_URL (Session Pooler URI with password) to Settings -> Secrets and variables -> Actions."
+            echo "Please add SUPABASE_DB_URL to Settings -> Secrets and variables -> Actions."
             exit 1
           fi
-          supabase db push --remote "$SUPABASE_DB_URL" --include-all || supabase db push --db-url "$SUPABASE_DB_URL" --include-all
+          supabase db push --remote "$SUPABASE_DB_URL" --include-all
           echo "Migration completed successfully!"
