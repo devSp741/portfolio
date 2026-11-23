@@ -1,8 +1,25 @@
 import siteData from "../data/site.json";
-import { ArrowUp } from "./icons";
+import { ArrowUp, GitHubIcon, InstagramIcon, LinkedInIcon, Mail, TwitterIcon } from "./icons";
 
 export function SiteFooter() {
-  const { brand, navigation } = siteData;
+  const { brand, navigation, socials } = siteData;
+
+  const renderSocialIcon = (iconName: string) => {
+    switch (iconName) {
+      case "github":
+        return <GitHubIcon size={14} />;
+      case "linkedin":
+        return <LinkedInIcon size={14} />;
+      case "instagram":
+        return <InstagramIcon size={14} />;
+      case "twitter":
+        return <TwitterIcon size={14} />;
+      case "mail":
+        return <Mail size={14} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <footer className="site-footer">
@@ -14,6 +31,23 @@ export function SiteFooter() {
           </a>
           <span>{brand.copyright}</span>
         </div>
+
+        {socials && socials.length > 0 && (
+          <div className="footer-socials" aria-label="Social profiles">
+            {socials.map((s) => (
+              <a
+                key={s.id || s.name}
+                href={s.url}
+                target={s.url.startsWith("http") ? "_blank" : undefined}
+                rel={s.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                aria-label={s.name}
+                className="footer-social-link"
+              >
+                {renderSocialIcon(s.icon)}
+              </a>
+            ))}
+          </div>
+        )}
 
         <nav className="footer-nav" aria-label="Footer navigation">
           {navigation.map((item) => (

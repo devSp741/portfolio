@@ -6,9 +6,57 @@
     "role": "Full Stack Developer",
     "experience": "5+ Years",
     "location": "India",
-    "email": "satyam@example.com",
+    "availability": "Available for work",
+    "email": "prajapatisatyam176@gmail.com",
     "copyright": "© 2026 Satyam Prajapati. All rights reserved."
   },
+  "socials": [
+    {
+      "id": "email",
+      "name": "Email",
+      "label": "Email",
+      "value": "prajapatisatyam176@gmail.com",
+      "note": "Direct message",
+      "url": "mailto:prajapatisatyam176@gmail.com",
+      "icon": "mail"
+    },
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "label": "LinkedIn",
+      "value": "in/satyamprajapati07575",
+      "note": "Professional profile",
+      "url": "https://in.linkedin.com/in/satyamprajapati07575",
+      "icon": "linkedin"
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "label": "Instagram",
+      "value": "@satyam07575",
+      "note": "Follow on Instagram",
+      "url": "https://www.instagram.com/satyam07575",
+      "icon": "instagram"
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "label": "GitHub",
+      "value": "devSp741",
+      "note": "Code & experiments",
+      "url": "https://github.com/devSp741",
+      "icon": "github"
+    },
+    {
+      "id": "twitter",
+      "name": "Twitter / X",
+      "label": "Twitter / X",
+      "value": "@satyam",
+      "note": "Connect on X",
+      "url": "https://twitter.com",
+      "icon": "twitter"
+    }
+  ],
   "navigation": [
     { "label": "Home", "href": "#home" },
     { "label": "About", "href": "#about" },
@@ -19,11 +67,5 @@
   "talkButton": {
     "label": "Let's Talk",
     "href": "#contact"
-  },
-  "socials": [
-    { "name": "GitHub", "url": "https://github.com", "icon": "github" },
-    { "name": "LinkedIn", "url": "https://linkedin.com", "icon": "linkedin" },
-    { "name": "Twitter / X", "url": "https://twitter.com", "icon": "twitter" },
-    { "name": "Email", "url": "mailto:satyam@example.com", "icon": "mail" }
-  ]
+  }
 }

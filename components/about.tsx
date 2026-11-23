@@ -1,8 +1,10 @@
 import aboutData from "../data/about.json";
+import siteData from "../data/site.json";
 import { ArrowRight, Code, Mail, MapPin, Rocket, Users, Zap } from "./icons";
 
 export function About() {
-  const { kicker, title, titleBreak, description, meta, ctaButton, traits } = aboutData;
+  const { kicker, title, titleBreak, description, ctaButton, traits } = aboutData;
+  const { brand } = siteData;
 
   const renderIcon = (iconName: string) => {
     switch (iconName) {
@@ -34,15 +36,15 @@ export function About() {
           <div className="contact-meta">
             <span className="meta-item">
               <MapPin size={15} aria-hidden="true" />
-              <span>{meta.location}</span>
+              <span>{brand.location}</span>
             </span>
-            <a className="meta-item" href={`mailto:${meta.email}`}>
+            <a className="meta-item" href={`mailto:${brand.email}`}>
               <Mail size={15} aria-hidden="true" />
-              <span>{meta.email}</span>
+              <span>{brand.email}</span>
             </a>
             <span className="meta-item">
               <span className="available-dot" aria-hidden="true" />
-              <span>{meta.availability}</span>
+              <span>{brand.availability}</span>
             </span>
           </div>
 

@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import contactData from "../data/contact.json";
-import { ArrowRight, GitHubIcon, Mail, MapPin, Sparkles } from "./icons";
+import siteData from "../data/site.json";
+import { ArrowRight, GitHubIcon, InstagramIcon, LinkedInIcon, Mail, MapPin, Sparkles } from "./icons";
 import { useToast } from "./toast";
 
 export function Contact() {
-  const { kicker, title, titleBreak, description, details, form } = contactData;
+  const { kicker, title, titleBreak, description, form } = contactData;
   const toast = useToast();
 
   const [formData, setFormData] = useState({
@@ -30,10 +31,66 @@ export function Contact() {
         return <Sparkles size={15} />;
       case "github":
         return <GitHubIcon size={15} />;
+      case "linkedin":
+        return <LinkedInIcon size={15} />;
+      case "instagram":
+        return <InstagramIcon size={15} />;
       default:
         return <Mail size={15} />;
     }
   };
+
+  // Centralized contact cards mapped directly from siteData
+  const activeDetails = [
+    {
+      id: "email",
+      icon: "mail",
+      label: "Email",
+      value: siteData.brand.email,
+      note: "Direct message",
+      href: `mailto:${siteData.brand.email}`,
+    },
+    {
+      id: "linkedin",
+      icon: "linkedin",
+      label: "LinkedIn",
+      value: "in/satyamprajapati07575",
+      note: "Professional profile",
+      href: siteData.socials.find((s) => s.id === "linkedin")?.url || "https://in.linkedin.com/in/satyamprajapati07575",
+    },
+    {
+      id: "instagram",
+      icon: "instagram",
+      label: "Instagram",
+      value: "@satyam07575",
+      note: "Follow on Instagram",
+      href: siteData.socials.find((s) => s.id === "instagram")?.url || "https://www.instagram.com/satyam07575",
+    },
+    {
+      id: "github",
+      icon: "github",
+      label: "GitHub",
+      value: "devSp741",
+      note: "Code & experiments",
+      href: siteData.socials.find((s) => s.id === "github")?.url || "https://github.com/devSp741",
+    },
+    {
+      id: "location",
+      icon: "map-pin",
+      label: "Location",
+      value: siteData.brand.location,
+      note: "Remote & On-site",
+      href: null,
+    },
+    {
+      id: "status",
+      icon: "clock",
+      label: "Status",
+      value: siteData.brand.availability,
+      note: "Full-time & contract",
+      href: null,
+    },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +158,7 @@ export function Contact() {
           <p className="section-copy">{description}</p>
 
           <div className="contact-details">
-            {details.map((detail) => {
+            {activeDetails.map((detail) => {
               const inner = (
                 <>
                   <span className="contact-detail-icon" aria-hidden="true">

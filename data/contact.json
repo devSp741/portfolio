@@ -8,9 +8,33 @@
       "id": "email",
       "icon": "mail",
       "label": "Email",
-      "value": "satyam@example.com",
+      "value": "prajapatisatyam176@gmail.com",
       "note": "Direct message",
-      "href": "mailto:satyam@example.com"
+      "href": "mailto:prajapatisatyam176@gmail.com"
+    },
+    {
+      "id": "linkedin",
+      "icon": "linkedin",
+      "label": "LinkedIn",
+      "value": "in/satyamprajapati07575",
+      "note": "Professional profile",
+      "href": "https://in.linkedin.com/in/satyamprajapati07575"
+    },
+    {
+      "id": "instagram",
+      "icon": "instagram",
+      "label": "Instagram",
+      "value": "@satyam07575",
+      "note": "Follow on Instagram",
+      "href": "https://www.instagram.com/satyam07575"
+    },
+    {
+      "id": "github",
+      "icon": "github",
+      "label": "GitHub",
+      "value": "devSp741",
+      "note": "Code & experiments",
+      "href": "https://github.com/devSp741"
     },
     {
       "id": "location",
@@ -27,14 +51,6 @@
       "value": "Available for work",
       "note": "Full-time & contract",
       "href": null
-    },
-    {
-      "id": "github",
-      "icon": "github",
-      "label": "GitHub",
-      "value": "github.com",
-      "note": "Code & experiments",
-      "href": "https://github.com"
     }
   ],
   "form": {
