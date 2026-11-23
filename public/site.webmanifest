@@ -1,0 +1,32 @@
+{
+  "name": "Satyam Prajapati — Full Stack Developer",
+  "short_name": "Satyam P.",
+  "description": "Full Stack Developer specializing in Next.js, React, Node.js, Laravel, and Linux VPS environments.",
+  "start_url": "https://satyam75.vercel.app/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090d15",
+  "theme_color": "#090d15",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
