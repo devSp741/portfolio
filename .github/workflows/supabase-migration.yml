@@ -32,5 +32,5 @@ jobs:
             echo "Please add SUPABASE_DB_URL to Settings -> Secrets and variables -> Actions."
             exit 1
           fi
-          supabase db push --remote "$SUPABASE_DB_URL" --include-all
+          supabase db push --remote "$SUPABASE_DB_URL" --include-all --yes
           echo "Migration completed successfully!"
