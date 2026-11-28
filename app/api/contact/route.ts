@@ -1,9 +1,20 @@
 import { NextResponse } from "next/server";
-import { saveMessage } from "../../../lib/messages";
+import { DatabaseServiceError, saveMessage } from "../../../lib/messages";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
+  let body: Record<string, unknown>;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Invalid request payload. Please refresh and try again." },
+      { status: 400 }
+    );
+  }
+
+  try {
     const { name, email, projectType, budget, message, honeypot } = body;
 
     // Silent drop for automated spam bots
@@ -13,15 +24,14 @@ export async function POST(request: Request) {
 
     if (!name || typeof name !== "string" || name.trim().length < 2) {
       return NextResponse.json(
-        { success: false, error: "Please provide a valid name (at least 2 characters)." },
+        { success: false, error: "Please enter your name (at least 2 characters)." },
         { status: 400 }
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || typeof email !== "string" || !emailRegex.test(email.trim())) {
+    if (!email || typeof email !== "string" || !EMAIL_REGEX.test(email.trim())) {
       return NextResponse.json(
-        { success: false, error: "Please provide a valid email address." },
+        { success: false, error: "Please enter a valid email address (e.g. name@example.com)." },
         { status: 400 }
       );
     }
@@ -34,11 +44,11 @@ export async function POST(request: Request) {
     }
 
     const result = await saveMessage({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      projectType: projectType || "General enquiry",
-      budget: budget || "Not decided",
-      message: message.trim(),
+      name: name.trim().slice(0, 150),
+      email: email.trim().toLowerCase().slice(0, 150),
+      projectType: typeof projectType === "string" && projectType.trim() ? projectType.trim() : "General enquiry",
+      budget: typeof budget === "string" && budget.trim() ? budget.trim() : "Not decided",
+      message: message.trim().slice(0, 5000),
     });
 
     return NextResponse.json({
@@ -48,10 +58,15 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("API /api/contact error:", error);
+    if (error instanceof DatabaseServiceError) {
+      return NextResponse.json(
+        { success: false, error: error.userMessage },
+        { status: error.status }
+      );
+    }
     return NextResponse.json(
-      { success: false, error: "Failed to process message. Please try again or email directly." },
+      { success: false, error: "Server error while processing message. Please try again or email directly." },
       { status: 500 }
     );
   }
 }
-

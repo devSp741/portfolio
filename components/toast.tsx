@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { CheckCircle2, AlertCircle, Sparkles, X } from "./icons";
 
 export type ToastType = "success" | "error" | "info";
@@ -10,6 +10,7 @@ export interface ToastItem {
   type: ToastType;
   title: string;
   description?: string;
+  duration: number;
 }
 
 interface ToastContextValue {
@@ -22,125 +23,108 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+const TOAST_DURATIONS: Record<ToastType, number> = {
+  success: 5500,
+  error: 7500,
+  info: 4500,
+};
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const removeToast = useCallback((id: string) => {
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const addToast = useCallback(
     (type: ToastType, title: string, description?: string) => {
       const id = `toast_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-      const newToast: ToastItem = { id, type, title, description };
+      const duration = TOAST_DURATIONS[type];
+      const newToast: ToastItem = { id, type, title, description, duration };
 
-      setToasts((prev) => [...prev.slice(-3), newToast]); // keep at most 4 toasts
+      setToasts((prev) => {
+        // Clear timer if oldest toast is evicted when exceeding 4 toasts
+        if (prev.length >= 4) {
+          const evicted = prev.slice(0, prev.length - 3);
+          evicted.forEach((old) => {
+            const oldTimer = timersRef.current.get(old.id);
+            if (oldTimer) {
+              clearTimeout(oldTimer);
+              timersRef.current.delete(old.id);
+            }
+          });
+        }
+        return [...prev.slice(-3), newToast];
+      });
 
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         removeToast(id);
-      }, 4500);
+      }, duration);
+      timersRef.current.set(id, timer);
     },
     [removeToast]
   );
 
-  const toastMethods = {
-    success: (title: string, description?: string) => addToast("success", title, description),
-    error: (title: string, description?: string) => addToast("error", title, description),
-    info: (title: string, description?: string) => addToast("info", title, description),
-  };
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+      timers.clear();
+    };
+  }, []);
+
+  const toastMethods = useMemo(
+    () => ({
+      success: (title: string, description?: string) => addToast("success", title, description),
+      error: (title: string, description?: string) => addToast("error", title, description),
+      info: (title: string, description?: string) => addToast("info", title, description),
+    }),
+    [addToast]
+  );
 
   return (
     <ToastContext.Provider value={{ toast: toastMethods }}>
       {children}
 
-      {/* Floating Toast Viewport */}
-      <div
-        className="toast-container"
-        aria-live="polite"
-        style={{
-          position: "fixed",
-          bottom: "24px",
-          right: "24px",
-          zIndex: 9999,
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          maxWidth: "380px",
-          width: "calc(100vw - 32px)",
-          pointerEvents: "none",
-        }}
-      >
+      {/* Responsive Floating Toaster Viewport */}
+      <div className="toast-container" aria-live="polite" aria-atomic="true">
         {toasts.map((item) => (
           <div
             key={item.id}
+            role={item.type === "error" ? "alert" : "status"}
             className={`toast-item toast-${item.type}`}
-            style={{
-              pointerEvents: "auto",
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "12px",
-              padding: "14px 16px",
-              borderRadius: "12px",
-              background: "rgba(16, 23, 34, 0.94)",
-              backdropFilter: "blur(14px)",
-              WebkitBackdropFilter: "blur(14px)",
-              border:
-                item.type === "success"
-                  ? "1px solid rgba(82, 196, 26, 0.35)"
-                  : item.type === "error"
-                  ? "1px solid rgba(255, 103, 93, 0.4)"
-                  : "1px solid rgba(56, 189, 248, 0.35)",
-              boxShadow: "0 14px 35px rgba(0, 0, 0, 0.55)",
-              color: "#edf1f6",
-              animation: "toast-slide-up 0.28s cubic-bezier(0.16, 1, 0.3, 1)",
-            }}
           >
-            <div
-              style={{
-                flexShrink: 0,
-                marginTop: "1px",
-                color:
-                  item.type === "success"
-                    ? "#52c41a"
-                    : item.type === "error"
-                    ? "#ff675d"
-                    : "#38bdf8",
-              }}
-            >
-              {item.type === "success" && <CheckCircle2 size={18} />}
-              {item.type === "error" && <AlertCircle size={18} />}
-              {item.type === "info" && <Sparkles size={18} />}
+            <div className="toast-icon" aria-hidden="true">
+              {item.type === "success" && <CheckCircle2 size={19} />}
+              {item.type === "error" && <AlertCircle size={19} />}
+              {item.type === "info" && <Sparkles size={19} />}
             </div>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "13px", fontWeight: "650", color: "#edf1f6", lineHeight: "1.3" }}>
-                {item.title}
-              </div>
-              {item.description && (
-                <div style={{ fontSize: "11px", color: "#9daabd", marginTop: "4px", lineHeight: "1.4" }}>
-                  {item.description}
-                </div>
-              )}
+            <div className="toast-body">
+              <div className="toast-title">{item.title}</div>
+              {item.description && <div className="toast-desc">{item.description}</div>}
             </div>
 
             <button
               type="button"
+              className="toast-close"
               onClick={() => removeToast(item.id)}
               aria-label="Close notification"
-              style={{
-                flexShrink: 0,
-                background: "transparent",
-                border: "none",
-                color: "#748296",
-                cursor: "pointer",
-                padding: "2px",
-                borderRadius: "4px",
-                display: "grid",
-                placeItems: "center",
-              }}
             >
               <X size={14} />
             </button>
+
+            <span
+              className="toast-progress"
+              style={{ animationDuration: `${item.duration}ms` }}
+              aria-hidden="true"
+            />
           </div>
         ))}
       </div>
@@ -155,4 +139,3 @@ export function useToast() {
   }
   return context.toast;
 }
-
